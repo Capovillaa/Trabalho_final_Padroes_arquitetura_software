@@ -1,4 +1,4 @@
-# Trabalho_final_Padr-es_arquitetura_software
+# Trabalho_final_Padroes_arquitetura_software
 # FinanceLite 
 
 Sistema simples e eficiente para gestão de finanças pessoais, desenvolvido como projeto acadêmico para aplicação de padrões de Arquitetura de Software.
