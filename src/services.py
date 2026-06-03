@@ -1,11 +1,11 @@
-from src.database import DatabaseConnection
+from src.database import DataBaseConnection
 from src.models import TransactionFactory
 from src.strategies import IncomeStrategy, ExpenseStrategy
 
 class TransactionService:
     def __init__(self):
         
-        self.db = DatabaseConnection().get_connection()
+        self.db = DataBaseConnection().get_connection()
 
     def add_transaction(self, type: str, title: str, amount: float):
        
