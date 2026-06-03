@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>FinanceLite</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; }
+        .balance { font-size: 24px; text-align: center; color: #2c3e50; font-weight: bold; margin-bottom: 20px; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input, select, button { padding: 10px; font-size: 16px; border-radius: 4px; border: 1px solid #ccc; }
+        button { background: #27ae60; color: white; border: none; cursor: pointer; }
+        button:hover { background: #2ecc71; }
+        .transaction-list { list-style: none; padding: 0; }
+        .transaction-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .receita { color: green; font-weight: bold; }
+        .despesa { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 FinanceLite</h1>
+        <div class="balance" id="balanceDisplay">Saldo: R$ 0.00</div>
+
+        <form id="transactionForm">
+            <select id="type" required>
+                <option value="receita">Receita (Entrada)</option>
+                <option value="despesa">Despesa (Saída)</option>
+            </select>
+            <input type="text" id="title" placeholder="Ex: Salário, Conta de Luz" required>
+            <input type="number" id="amount" step="0.01" placeholder="Valor (Ex: 150.50)" required>
+            <button type="submit">Adicionar Transação</button>
+        </form>
+
+        <h2>Histórico</h2>
+        <ul class="transaction-list" id="transactionList"></ul>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8000";
+
+        async function loadData() {
+            const balanceRes = await fetch(`${API_URL}/balance`);
+            const balanceData = await balanceRes.json();
+            document.getElementById('balanceDisplay').innerText = `Saldo: R$ ${balanceData.balance.toFixed(2)}`;
+
+            const transRes = await fetch(`${API_URL}/transactions`);
+            const transactions = await transRes.json();
+            const list = document.getElementById('transactionList');
+            list.innerHTML = '';
+            
+            transactions.forEach(t => {
+                const li = document.createElement('li');
+                li.className = 'transaction-item';
+                li.innerHTML = `<span>${t.title}</span> <span class="${t.type}">R$ ${t.amount.toFixed(2)} (${t.type})</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                type: document.getElementById('type').value,
+                title: document.getElementById('title').value,
+                amount: parseFloat(document.getElementById('amount').value)
+            };
+
+            await fetch(`${API_URL}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('title').value = '';
+            document.getElementById('amount').value = '';
+            loadData();
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
