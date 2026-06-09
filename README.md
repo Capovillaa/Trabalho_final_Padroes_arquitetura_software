@@ -46,3 +46,15 @@ O sistema permite registrar receitas e despesas, calculando o saldo atual do usu
 ### Frontend
 1. Como o frontend usa HTML/CSS/JS (Vanilla) puro, basta abrir o arquivo `index.html` em qualquer navegador web.
 2. Certifique-se de que a API (Backend) esteja em execução para que as operações funcionem perfeitamente.
+
+### Testes Automatizados
+Para verificar a integridade da API e a aplicação das regras de negócio, o projeto conta com testes automatizados utilizando `pytest`.
+1. Certifique-se de que o ambiente virtual está ativado e as dependências instaladas.
+2. Na raiz do projeto, defina o diretório atual como raiz do Python e execute o `pytest`:
+   ```bash
+   # No Windows (PowerShell):
+   $env:PYTHONPATH="."; pytest src/test_main.py
+   
+   # No Linux/Mac:
+   PYTHONPATH=. pytest src/test_main.py
+   ```
