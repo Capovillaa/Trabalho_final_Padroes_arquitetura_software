@@ -1,44 +1,32 @@
-from src.database import DataBaseConnection
 from src.models import TransactionFactory
 from src.strategies import IncomeStrategy, ExpenseStrategy
+from src.repository import ITransactionRepository
 
 class TransactionService:
-    def __init__(self):
-        
-        self.db = DataBaseConnection().get_connection()
+    def __init__(self, repository: ITransactionRepository):
+        self.repository = repository
+        # Mapa de estratégias (Strategy Pattern dinâmico)
+        self.strategies = {
+            "receita": IncomeStrategy(),
+            "despesa": ExpenseStrategy()
+        }
 
     def add_transaction(self, type: str, title: str, amount: float):
-       
         transaction = TransactionFactory.create_transaction(type, title, amount)
-
-        cursor = self.db.cursor()
-        cursor.execute(
-            "INSERT INTO transactions (title, amount, type) VALUES (?, ?, ?)",
-            (transaction.title, transaction.amount, transaction.get_type())
-        )
-        self.db.commit()
+        self.repository.save(transaction)
         return {"message": "Transação adicionada com sucesso"}
 
     def get_balance(self):
-        cursor = self.db.cursor()
-        cursor.execute("SELECT amount, type FROM transactions")
-        transactions = cursor.fetchall()
+        transactions = self.repository.get_all_amounts_and_types()
 
         balance = 0.0
-        income_strategy = IncomeStrategy()
-        expense_strategy = ExpenseStrategy()
 
-        for amount, type in transactions:
-            
-            if type == "receita":
-                balance = income_strategy.calculate(balance, amount)
-            elif type == "despesa":
-                balance = expense_strategy.calculate(balance, amount)
+        for amount, transaction_type in transactions:
+            strategy = self.strategies.get(transaction_type)
+            if strategy:
+                balance = strategy.calculate(balance, amount)
 
         return {"balance": balance}
 
     def get_all_transactions(self):
-        cursor = self.db.cursor()
-        cursor.execute("SELECT id, title, amount, type FROM transactions")
-        
-        return [{"id": row[0], "title": row[1], "amount": row[2], "type": row[3]} for row in cursor.fetchall()]
+        return self.repository.get_all()

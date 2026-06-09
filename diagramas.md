@@ -10,11 +10,13 @@ graph TD
         UI["Frontend\n(index.html / Vanilla JS)"]
         API["Backend API\n(Rotas FastAPI)"]
         Services["Serviços de Domínio\n(TransactionService)"]
+        Repo["Acesso a Dados\n(TransactionRepository)"]
         DB["Banco de Dados\n(SQLite / finance.db)"]
     end
     UI -- "HTTP GET/POST\n(Fetch API)" --> API
     API -- "Delega Regras" --> Services
-    Services -- "Consulta/Grava (SQL)" --> DB
+    Services -- "Grava/Consulta" --> Repo
+    Repo -- "Executa SQL" --> DB
 ```
 
 ## 2. Diagrama de Classes (Foco nos Padrões GoF)
@@ -64,12 +66,28 @@ classDiagram
     CalculationStrategy <|-- ExpenseStrategy
     note for CalculationStrategy "Padrão: Strategy"
 
-    class TransactionService {
+    class ITransactionRepository {
+        <<interface>>
+        +save(transaction)
+        +get_all()
+        +get_all_amounts_and_types()
+    }
+    class SQLiteTransactionRepository {
         -db
+        +save(transaction)
+        +get_all()
+        +get_all_amounts_and_types()
+    }
+    ITransactionRepository <|.. SQLiteTransactionRepository
+    SQLiteTransactionRepository --> DataBaseConnection : usa
+
+    class TransactionService {
+        -repository: ITransactionRepository
+        -strategies: dict
         +add_transaction()
         +get_balance()
     }
-    TransactionService --> DataBaseConnection : usa
+    TransactionService --> ITransactionRepository : usa (Injeção)
     TransactionService --> TransactionFactory : usa
     TransactionService --> CalculationStrategy : usa
 ```
@@ -83,15 +101,18 @@ sequenceDiagram
     participant API as API (main.py)
     participant Svc as TransactionService
     participant Factory as TransactionFactory
+    participant Repo as SQLiteTransactionRepository
     participant DB as SQLite (database.py)
 
     Usuario->>UI: Preenche formulário e clica "Lançar"
-    UI->>API: HTTP POST /transactions (JSON)
+    UI->>API: HTTP POST /api/v1/transactions (JSON)
     API->>Svc: add_transaction(type, title, amount)
     Svc->>Factory: create_transaction(type, title, amount)
     Factory-->>Svc: Retorna instância (Income ou Expense)
-    Svc->>DB: INSERT INTO transactions...
-    DB-->>Svc: Confirma persistência
+    Svc->>Repo: save(transaction)
+    Repo->>DB: INSERT INTO transactions...
+    DB-->>Repo: Confirma persistência
+    Repo-->>Svc: Operação concluída
     Svc-->>API: {"message": "Transação adicionada..."}
     API-->>UI: 200 OK
     UI-->>Usuario: Atualiza interface (recarrega lista e saldo)
