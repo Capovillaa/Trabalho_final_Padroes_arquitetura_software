@@ -1,25 +1,55 @@
+import pytest
 from fastapi.testclient import TestClient
-from src.main import app
+from src.main import app, service
+from src.repository import ITransactionRepository
+from src.models import Transaction
+
+class MockRepository(ITransactionRepository):
+    def __init__(self):
+        self.transactions = []
+
+    def save(self, transaction: Transaction):
+        self.transactions.append(transaction)
+
+    def get_all(self):
+        return [
+            {"id": i+1, "title": t.title, "amount": t.amount, "type": t.get_type()}
+            for i, t in enumerate(self.transactions)
+        ]
+
+    def get_all_amounts_and_types(self):
+        return [(t.amount, t.get_type()) for t in self.transactions]
+
+# Injetamos o mock no serviço (comprovando o benefício do DIP!)
+mock_repo = MockRepository()
+service.repository = mock_repo
 
 client = TestClient(app)
+
+@pytest.fixture(autouse=True)
+def run_before_and_after_tests():
+    # Limpa o repositório falso antes de cada teste
+    mock_repo.transactions = []
+    yield
 
 def test_read_balance_initial():
     response = client.get("/api/v1/balance")
     assert response.status_code == 200
-    assert "balance" in response.json()
+    assert response.json() == {"balance": 0.0}
 
 def test_create_income_transaction():
     response = client.post(
         "/api/v1/transactions",
-        json={"type": "receita", "title": "Venda de Produto", "amount": 100.0}
+        json={"type": "receita", "title": "Venda", "amount": 100.0}
     )
     assert response.status_code == 200
     assert response.json() == {"message": "Transação adicionada com sucesso"}
+    assert len(mock_repo.transactions) == 1
 
 def test_create_expense_transaction():
     response = client.post(
         "/api/v1/transactions",
-        json={"type": "despesa", "title": "Conta de Luz", "amount": 50.0}
+        json={"type": "despesa", "title": "Conta", "amount": 50.0}
     )
     assert response.status_code == 200
     assert response.json() == {"message": "Transação adicionada com sucesso"}
@@ -33,8 +63,11 @@ def test_create_invalid_transaction():
     assert "detail" in response.json()
 
 def test_read_transactions_list():
+    # Adicionamos transações diretas no mock para testar a leitura isolada
+    client.post("/api/v1/transactions", json={"type": "receita", "title": "Venda", "amount": 100.0})
+    client.post("/api/v1/transactions", json={"type": "despesa", "title": "Conta", "amount": 50.0})
+    
     response = client.get("/api/v1/transactions")
     assert response.status_code == 200
     transactions = response.json()
-    assert isinstance(transactions, list)
-    assert len(transactions) >= 2 # Pois inserimos 2 nos testes anteriores
+    assert len(transactions) == 2
