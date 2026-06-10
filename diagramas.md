@@ -7,7 +7,7 @@ Aqui estão os diagramas em código Mermaid solicitados pelo professor. Você po
 ```mermaid
 graph TD
     subgraph "Monolito Modular (FinanceLite)"
-        UI["Frontend\n(index.html / Vanilla JS)"]
+        UI["Frontend\n(React SPA / Vite)"]
         API["Backend API\n(Rotas FastAPI)"]
         Services["Serviços de Domínio\n(TransactionService)"]
         Repo["Acesso a Dados\n(TransactionRepository)"]
@@ -47,7 +47,7 @@ classDiagram
     Transaction <|-- Expense
 
     class TransactionFactory {
-        +create_transaction(type, title, amount) Transaction$
+        +create_transaction(type, title, amount, category, date) Transaction$
     }
     note for TransactionFactory "Padrão: Factory Method"
     TransactionFactory ..> Transaction : instancia
@@ -97,7 +97,7 @@ classDiagram
 ```mermaid
 sequenceDiagram
     actor Usuario
-    participant UI as Frontend (Vanilla JS)
+    participant UI as Frontend (React SPA)
     participant API as API (main.py)
     participant Svc as TransactionService
     participant Factory as TransactionFactory
@@ -106,8 +106,8 @@ sequenceDiagram
 
     Usuario->>UI: Preenche formulário e clica "Lançar"
     UI->>API: HTTP POST /api/v1/transactions (JSON)
-    API->>Svc: add_transaction(type, title, amount)
-    Svc->>Factory: create_transaction(type, title, amount)
+    API->>Svc: add_transaction(type, title, amount, category, date)
+    Svc->>Factory: create_transaction(type, title, amount, category, date)
     Factory-->>Svc: Retorna instância (Income ou Expense)
     Svc->>Repo: save(transaction)
     Repo->>DB: INSERT INTO transactions...

@@ -1,6 +1,6 @@
 # ADR-004: Adotar Vanilla JS e HTML/CSS Puro no Frontend
 
-**Status:** Accepted
+**Status:** Superseded by ADR-007
 
 **Contexto:** Ao fazer o projeto, precisamos decidir como construir a interface de usuário que se comunique com a API REST. Há uma tendência atual em utilizar frameworks e bibliotecas SPA (Single Page Application) como React, Vue ou Angular. O problema é que a disciplina avalia especificamente os padrões e a arquitetura do software de maneira geral. A adoção de um framework de frontend complexo traria consigo a necessidade de ferramentas de build (Node.js, Webpack/Vite) e uma curva de aprendizado que desviaria o foco do objetivo principal.
 
