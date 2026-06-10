@@ -5,14 +5,14 @@ from src.repository import ITransactionRepository
 class TransactionService:
     def __init__(self, repository: ITransactionRepository):
         self.repository = repository
-        # Mapa de estratégias (Strategy Pattern dinâmico)
+        
         self.strategies = {
             "receita": IncomeStrategy(),
             "despesa": ExpenseStrategy()
         }
 
-    def add_transaction(self, type: str, title: str, amount: float):
-        transaction = TransactionFactory.create_transaction(type, title, amount)
+    def add_transaction(self, type: str, title: str, amount: float, category: str, date: str):
+        transaction = TransactionFactory.create_transaction(type, title, amount, category, date)
         self.repository.save(transaction)
         return {"message": "Transação adicionada com sucesso"}
 

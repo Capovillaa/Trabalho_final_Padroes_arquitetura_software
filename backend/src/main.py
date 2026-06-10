@@ -27,11 +27,13 @@ class TransactionInput(BaseModel):
     type: str
     title: str
     amount: float
+    category: str
+    date: str
 
 @app.post("/api/v1/transactions")
 def create_transaction(data: TransactionInput):
     try:
-        return service.add_transaction(data.type, data.title, data.amount)
+        return service.add_transaction(data.type, data.title, data.amount, data.category, data.date)
     except ValueError as e:
        
         raise HTTPException(status_code=400, detail=str(e))

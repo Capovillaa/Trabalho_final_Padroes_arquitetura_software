@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 
 class Transaction(ABC):
-    def __init__(self, title: str, amount: float):
+    def __init__(self, title: str, amount: float, category: str, date: str):
         self.title = title
         self.amount = amount
+        self.category = category
+        self.date = date
 
     @abstractmethod
     def get_type(self) -> str:
@@ -19,14 +21,14 @@ class Expense(Transaction):
 
 class TransactionFactory:
     @staticmethod
-    def create_transaction(type: str, title: str, amount: float) -> Transaction:
+    def create_transaction(type: str, title: str, amount: float, category: str, date: str) -> Transaction:
         """
         Retorna a classe correta baseada no tipo passado como parâmetro
         """
         if type.lower() == "receita":
-            return Income(title, amount)
+            return Income(title, amount, category, date)
         elif type.lower() == "despesa":
-            return Expense(title, amount)
+            return Expense(title, amount, category, date)
         else:
-            # Tratamento de erros explícito (Clean Code)
+            
             raise ValueError("Tipo inválido. Use 'receita' ou 'despesa'.")
