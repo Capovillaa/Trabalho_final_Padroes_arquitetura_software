@@ -13,7 +13,7 @@ O sistema permite registrar receitas e despesas, calculando o saldo atual do usu
 ## Stack Tecnológica
 * **Backend:** Python + FastAPI
 * **Banco de Dados:** SQLite
-* **Frontend:** HTML5, CSS3, JavaScript (Vanilla)
+* **Frontend:** React, CSS Modules, Recharts (Gráficos)
 
 ## Como executar
 
@@ -21,7 +21,10 @@ O sistema permite registrar receitas e despesas, calculando o saldo atual do usu
 * Python 3.8+ instalado na máquina.
 
 ### Backend (API REST)
-1. Abra o terminal na pasta raiz do projeto (`Trabalho_final_Padroes_arquitetura_software`).
+1. Abra o terminal e navegue para a pasta `backend`:
+   ```bash
+   cd backend
+   ```
 2. (Opcional) Crie e ative um ambiente virtual:
    ```bash
    python -m venv venv
@@ -43,14 +46,26 @@ O sistema permite registrar receitas e despesas, calculando o saldo atual do usu
    ```
 5. A API estará rodando em `http://127.0.0.1:8000`. Você pode acessar a documentação interativa (Swagger UI) em `http://127.0.0.1:8000/docs`.
 
-### Frontend
-1. Como o frontend usa HTML/CSS/JS (Vanilla) puro, basta abrir o arquivo `index.html` em qualquer navegador web.
-2. Certifique-se de que a API (Backend) esteja em execução para que as operações funcionem perfeitamente.
+### Frontend (React)
+1. Certifique-se de ter o Node.js instalado.
+2. Navegue até a pasta `frontend`:
+   ```bash
+   cd frontend
+   ```
+3. Instale as dependências:
+   ```bash
+   npm install
+   ```
+4. Execute o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+5. O frontend estará rodando em `http://localhost:5173`. Certifique-se de que a API (Backend) esteja em execução na porta `8000`.
 
 ### Testes Automatizados
 Para verificar a integridade da API e a aplicação das regras de negócio, o projeto conta com testes automatizados utilizando `pytest`.
-1. Certifique-se de que o ambiente virtual está ativado e as dependências instaladas.
-2. Na raiz do projeto, defina o diretório atual como raiz do Python e execute o `pytest`:
+1. Acesse a pasta `backend`, e certifique-se de que o ambiente virtual está ativado e as dependências instaladas.
+2. Execute o `pytest`:
    ```bash
    # No Windows (PowerShell):
    $env:PYTHONPATH="."; pytest src/test_main.py
